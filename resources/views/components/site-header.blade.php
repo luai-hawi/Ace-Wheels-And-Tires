@@ -152,58 +152,66 @@
         </div>
     </div>
 
-    {{-- Mobile drawer --}}
-    <div x-cloak x-show="mobileOpen" x-transition.opacity class="fixed inset-0 bg-black/60 z-40 xl:hidden"
-        @click="mobileOpen = false"></div>
-    <div x-cloak x-show="mobileOpen" x-transition:enter="transition ease-out duration-300"
-        x-transition:enter-start="translate-x-full" x-transition:enter-end="translate-x-0"
-        x-transition:leave="transition ease-in duration-200" x-transition:leave-start="translate-x-0"
-        x-transition:leave-end="translate-x-full"
-        class="fixed inset-y-0 right-0 z-50 w-80 max-w-[85vw] bg-white shadow-2xl overflow-y-auto xl:hidden">
-        <div class="flex items-center justify-between p-4 border-b">
-            <span class="font-heading font-bold uppercase">Menu</span>
-            <button @click="mobileOpen = false" class="p-2" aria-label="Close menu">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                </svg>
-            </button>
+    {{-- Mobile drawer: teleported to <body> so the header's backdrop-blur (which creates a
+    CSS containing block for fixed-position descendants) doesn't trap the drawer inside the
+    navbar's height instead of covering the full viewport. --}}
+    <template x-teleport="body">
+        <div x-cloak x-show="mobileOpen" x-transition.opacity class="fixed inset-0 bg-black/60 z-40 xl:hidden"
+            @click="mobileOpen = false"></div>
+    </template>
+    <template x-teleport="body">
+        <div x-cloak x-show="mobileOpen" x-transition:enter="transition ease-out duration-300"
+            x-transition:enter-start="translate-x-full" x-transition:enter-end="translate-x-0"
+            x-transition:leave="transition ease-in duration-200" x-transition:leave-start="translate-x-0"
+            x-transition:leave-end="translate-x-full"
+            class="fixed inset-y-0 right-0 z-50 w-80 max-w-[85vw] bg-white shadow-2xl overflow-y-auto xl:hidden">
+            <div class="flex items-center justify-between p-4 border-b">
+                <span class="font-heading font-bold uppercase">Menu</span>
+                <button @click="mobileOpen = false" class="p-2" aria-label="Close menu">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+            <nav class="flex flex-col p-4 gap-1 font-medium">
+                <a href="{{ route('home') }}" class="px-3 py-2 rounded hover:bg-brand-light">Home</a>
+                <a href="{{ route('pages.show', 'about-us') }}" class="px-3 py-2 rounded hover:bg-brand-light">About
+                    Us</a>
+
+                <button @click="mobileServices = !mobileServices"
+                    class="flex items-center justify-between px-3 py-2 rounded hover:bg-brand-light">
+                    Our Services
+                    <span x-text="mobileServices ? '−' : '+'"></span>
+                </button>
+                <div x-show="mobileServices" class="pl-4">
+                    @foreach ($services as $service)
+                        <a href="{{ $service->url() }}"
+                            class="block px-3 py-2 rounded hover:bg-brand-light text-sm">{{ $service->title }}</a>
+                    @endforeach
+                </div>
+
+                <button @click="mobileAreas = !mobileAreas"
+                    class="flex items-center justify-between px-3 py-2 rounded hover:bg-brand-light">
+                    Areas We Serve
+                    <span x-text="mobileAreas ? '−' : '+'"></span>
+                </button>
+                <div x-show="mobileAreas" class="pl-4">
+                    @foreach ($areas as $area)
+                        <a href="{{ $area->url() }}"
+                            class="block px-3 py-2 rounded hover:bg-brand-light text-sm">{{ $area->title }}</a>
+                    @endforeach
+                </div>
+
+                <a href="{{ route('pages.show', 'faqs') }}" class="px-3 py-2 rounded hover:bg-brand-light">FAQs</a>
+                <a href="{{ route('blog.index') }}" class="px-3 py-2 rounded hover:bg-brand-light">Blog</a>
+                <a href="{{ route('pages.show', 'financing') }}"
+                    class="px-3 py-2 rounded hover:bg-brand-light">Financing</a>
+                <a href="{{ route('contact') }}" class="px-3 py-2 rounded hover:bg-brand-light">Contact</a>
+                <a href="tel:{{ preg_replace('/[^0-9+]/', '', $phone) }}"
+                    class="btn-primary mt-2 justify-center">Call
+                    {{ $phone }}</a>
+            </nav>
         </div>
-        <nav class="flex flex-col p-4 gap-1 font-medium">
-            <a href="{{ route('home') }}" class="px-3 py-2 rounded hover:bg-brand-light">Home</a>
-            <a href="{{ route('pages.show', 'about-us') }}" class="px-3 py-2 rounded hover:bg-brand-light">About
-                Us</a>
-
-            <button @click="mobileServices = !mobileServices"
-                class="flex items-center justify-between px-3 py-2 rounded hover:bg-brand-light">
-                Our Services
-                <span x-text="mobileServices ? '−' : '+'"></span>
-            </button>
-            <div x-show="mobileServices" class="pl-4">
-                @foreach ($services as $service)
-                    <a href="{{ $service->url() }}"
-                        class="block px-3 py-2 rounded hover:bg-brand-light text-sm">{{ $service->title }}</a>
-                @endforeach
-            </div>
-
-            <button @click="mobileAreas = !mobileAreas"
-                class="flex items-center justify-between px-3 py-2 rounded hover:bg-brand-light">
-                Areas We Serve
-                <span x-text="mobileAreas ? '−' : '+'"></span>
-            </button>
-            <div x-show="mobileAreas" class="pl-4">
-                @foreach ($areas as $area)
-                    <a href="{{ $area->url() }}"
-                        class="block px-3 py-2 rounded hover:bg-brand-light text-sm">{{ $area->title }}</a>
-                @endforeach
-            </div>
-
-            <a href="{{ route('pages.show', 'faqs') }}" class="px-3 py-2 rounded hover:bg-brand-light">FAQs</a>
-            <a href="{{ route('blog.index') }}" class="px-3 py-2 rounded hover:bg-brand-light">Blog</a>
-            <a href="{{ route('pages.show', 'financing') }}"
-                class="px-3 py-2 rounded hover:bg-brand-light">Financing</a>
-            <a href="{{ route('contact') }}" class="px-3 py-2 rounded hover:bg-brand-light">Contact</a>
-            <a href="tel:{{ preg_replace('/[^0-9+]/', '', $phone) }}" class="btn-primary mt-2 justify-center">Call
-                {{ $phone }}</a>
-        </nav>
-    </div>
+    </template>
 </header>
